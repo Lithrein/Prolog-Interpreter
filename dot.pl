@@ -186,10 +186,25 @@ dependencies_([((Wvars, Rvars), Vec) | Opes], [Dep | Deps]) :-
 
 print_deps([]).
 print_deps([[A, B] | Deps]) :-
-  format(atom(Res), "\"~w\" -> \"~w\"", [A, B]),
+  format(atom(Res), "\"~w\" -> \"~w\";", [A, B]),
   writeln(Res),
   print_deps(Deps).
 
+format_deps([], "").
+format_deps([[A, B] | Deps], Res) :- 
+  format(atom(Res1), '"~w" -> "~w";\n', [A, B]), 
+  format_deps(Deps, Res2),
+  concat(Res1, Res2, Res).
+
+save_graph_to(Graphname, Deps) :-
+  format_deps(Deps, Graph),
+  format(atom(Filename), '~w.dot', Graphname),
+  format(atom(Content), 'digraph ~w {\n ~w } \n', [Graphname, Graph]),
+  writeln(Filename),
+  open(Filename, append, F),
+  write(F, Content),
+  close(F).
+  
 %%%%%%%%%%%%%%
 
 test(1, "", [
